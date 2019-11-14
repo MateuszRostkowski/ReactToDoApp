@@ -1,4 +1,4 @@
-import React from "react";
+import React, { Fragment } from "react";
 import styles from "./TodoApp.module.css";
 
 const Counter = () => {
@@ -31,7 +31,7 @@ const Clear = () => {
   return <button className={styles.clearCompleted}>Clear completed</button>;
 };
 
-const Footer = () => {
+const Controls = () => {
   return (
     <footer className={styles.footer}>
       <Counter />
@@ -41,65 +41,40 @@ const Footer = () => {
   );
 };
 
-const Header = () => {
+const TodoInput = () => {
   return (
-    <header className={styles.header}>
-      <h1>todos</h1>
-      <input className={styles.newTodo} placeholder="What needs to be done?" />
-    </header>
+    <input className={styles.newTodo} placeholder="What needs to be done?" />
   );
 };
 
 const ToggleAll = () => {
   return (
-    <div>
+    <Fragment>
       <input id="toggle-all" className={styles.toggleAll} type="checkbox" />
       <label htmlFor="toggle-all">Mark all as complete</label>
-    </div>
+    </Fragment>
   );
 };
 
-const ToggleItem = props => {
-  return <input className={styles.toggle} type="checkbox" checked={true} />;
-};
-
-const TodoEdit = () => {
-  return <input className={styles.edit} value="Create a TodoMVC template" />;
-};
-
-const TodoRemove = () => {
-  return <button className={styles.destroy}></button>;
-};
-
-const TodoView = props => {
-  console.log(props);
+const TodoItem = () => {
   return (
-    <div className={styles.view}>
-      <ToggleItem isCompleted={props.isCompleted} />
-      <label>Taste JavaScript</label>
-      <TodoRemove />
-    </div>
-  );
-};
-
-const TodoItem = props => {
-  return (
-    <li className={props.isCompleted ? styles.completed : null}>
-      <TodoView isChompleted={props.isCompleted} />
-      <TodoEdit />
+    <li className={styles.completed}>
+      <div className={styles.view}>
+        <input className={styles.toggle} type="checkbox" checked />
+        <label>Taste JavaScript</label>
+        <button className={styles.destroy}></button>
+      </div>
+      <input className={styles.edit} value="Create a TodoMVC template" />
     </li>
   );
 };
 
 const TodoList = () => {
   return (
-    <section className={styles.main}>
-      <ToggleAll />
-      <ul className={styles.todoList}>
-        <TodoItem isCompleted={true} />
-        <TodoItem isCompleted={false} />
-      </ul>
-    </section>
+    <ul className={styles.todoList}>
+      <TodoItem />
+      <TodoItem />
+    </ul>
   );
 };
 
@@ -123,9 +98,15 @@ const MoreInfo = () => {
 const TodoApp = () => (
   <div>
     <section className={styles.todoapp}>
-      <Header />
-      <TodoList />
-      <Footer />
+      <header className={styles.header}>
+        <h1>todos</h1>
+        <TodoInput />
+      </header>
+      <section className={styles.main}>
+        <ToggleAll />
+        <TodoList />
+      </section>
+      <Controls />
     </section>
     <MoreInfo />
   </div>
