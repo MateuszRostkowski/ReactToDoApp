@@ -45,37 +45,59 @@ const Header = () => {
   return (
     <header className={styles.header}>
       <h1>todos</h1>
-      <input
-        className={styles.newTodo}
-        placeholder="What needs to be done?"
-        autofocus
-      />
+      <input className={styles.newTodo} placeholder="What needs to be done?" />
     </header>
+  );
+};
+
+const ToggleAll = () => {
+  return (
+    <div>
+      <input id="toggle-all" className={styles.toggleAll} type="checkbox" />
+      <label htmlFor="toggle-all">Mark all as complete</label>
+    </div>
+  );
+};
+
+const ToggleItem = props => {
+  return <input className={styles.toggle} type="checkbox" checked={true} />;
+};
+
+const TodoEdit = () => {
+  return <input className={styles.edit} value="Create a TodoMVC template" />;
+};
+
+const TodoRemove = () => {
+  return <button className={styles.destroy}></button>;
+};
+
+const TodoView = props => {
+  console.log(props);
+  return (
+    <div className={styles.view}>
+      <ToggleItem isCompleted={props.isCompleted} />
+      <label>Taste JavaScript</label>
+      <TodoRemove />
+    </div>
+  );
+};
+
+const TodoItem = props => {
+  return (
+    <li className={props.isCompleted ? styles.completed : null}>
+      <TodoView isChompleted={props.isCompleted} />
+      <TodoEdit />
+    </li>
   );
 };
 
 const TodoList = () => {
   return (
     <section className={styles.main}>
-      <input id="toggle-all" className={styles.toggleAll} type="checkbox" />
-      <label htmlFor="toggle-all">Mark all as complete</label>
+      <ToggleAll />
       <ul className={styles.todoList}>
-        <li className={styles.completed}>
-          <div className={styles.view}>
-            <input className={styles.toggle} type="checkbox" checked />
-            <label>Taste JavaScript</label>
-            <button className={styles.destroy}></button>
-          </div>
-          <input className={styles.edit} value="Create a TodoMVC template" />
-        </li>
-        <li>
-          <div className={styles.view}>
-            <input className={styles.toggle} type="checkbox" />
-            <label>Buy a unicorn</label>
-            <button className={styles.destroy}></button>
-          </div>
-          <input className={styles.edit} value="Rule the web" />
-        </li>
+        <TodoItem isCompleted={true} />
+        <TodoItem isCompleted={false} />
       </ul>
     </section>
   );
