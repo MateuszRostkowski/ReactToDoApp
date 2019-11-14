@@ -1,61 +1,77 @@
 import React from "react";
-import "./TodoApp.css";
+import styles from "./TodoApp.module.css";
+
+const Counter = () => {
+  return (
+    <span className={styles.todoCount}>
+      <strong>0</strong> item left
+    </span>
+  );
+};
+
+const Filters = () => {
+  return (
+    <ul className={styles.filters}>
+      <li>
+        <a className={styles.selected} href="#/">
+          All
+        </a>
+      </li>
+      <li>
+        <a href="#/active">Active</a>
+      </li>
+      <li>
+        <a href="#/completed">Completed</a>
+      </li>
+    </ul>
+  );
+};
+
+const Clear = () => {
+  return <button className={styles.clearCompleted}>Clear completed</button>;
+};
 
 const TodoApp = () => (
   <div>
-    <section className="todoapp">
-      <header className="header">
+    <section className={styles.todoapp}>
+      <header className={styles.header}>
         <h1>todos</h1>
         <input
-          className="new-todo"
+          className={styles.newTodo}
           placeholder="What needs to be done?"
           autofocus
         />
       </header>
 
-      <section className="main">
-        <input id="toggle-all" className="toggle-all" type="checkbox" />
+      <section className={styles.main}>
+        <input id="toggle-all" className={styles.toggleAll} type="checkbox" />
         <label htmlFor="toggle-all">Mark all as complete</label>
-        <ul className="todo-list">
-          <li className="completed">
-            <div className="view">
-              <input className="toggle" type="checkbox" checked />
+        <ul className={styles.todoList}>
+          <li className={styles.completed}>
+            <div className={styles.view}>
+              <input className={styles.toggle} type="checkbox" checked />
               <label>Taste JavaScript</label>
-              <button className="destroy"></button>
+              <button className={styles.destroy}></button>
             </div>
-            <input className="edit" value="Create a TodoMVC template" />
+            <input className={styles.edit} value="Create a TodoMVC template" />
           </li>
           <li>
-            <div className="view">
-              <input className="toggle" type="checkbox" />
+            <div className={styles.view}>
+              <input className={styles.toggle} type="checkbox" />
               <label>Buy a unicorn</label>
-              <button className="destroy"></button>
+              <button className={styles.destroy}></button>
             </div>
-            <input className="edit" value="Rule the web" />
+            <input className={styles.edit} value="Rule the web" />
           </li>
         </ul>
       </section>
-      <footer className="footer">
-        <span className="todo-count">
-          <strong>0</strong> item left
-        </span>
-        <ul className="filters">
-          <li>
-            <a className="selected" href="#/">
-              All
-            </a>
-          </li>
-          <li>
-            <a href="#/active">Active</a>
-          </li>
-          <li>
-            <a href="#/completed">Completed</a>
-          </li>
-        </ul>
-        <button className="clear-completed">Clear completed</button>
+      <footer className={styles.footer}>
+        <Counter />
+        <Filters />
+        <Clear />
       </footer>
     </section>
-    <footer className="info">
+    <footer className={styles.info}>
       <p>Double-click to edit a todo</p>
       <p>
         Template by <a href="http://sindresorhus.com">Sindre Sorhus</a>
