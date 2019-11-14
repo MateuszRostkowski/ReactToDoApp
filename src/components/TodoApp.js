@@ -31,46 +31,58 @@ const Clear = () => {
   return <button className={styles.clearCompleted}>Clear completed</button>;
 };
 
-const TodoApp = () => (
-  <div>
-    <section className={styles.todoapp}>
-      <header className={styles.header}>
-        <h1>todos</h1>
-        <input
-          className={styles.newTodo}
-          placeholder="What needs to be done?"
-          autofocus
-        />
-      </header>
+const Footer = () => {
+  return (
+    <footer className={styles.footer}>
+      <Counter />
+      <Filters />
+      <Clear />
+    </footer>
+  );
+};
 
-      <section className={styles.main}>
-        <input id="toggle-all" className={styles.toggleAll} type="checkbox" />
-        <label htmlFor="toggle-all">Mark all as complete</label>
-        <ul className={styles.todoList}>
-          <li className={styles.completed}>
-            <div className={styles.view}>
-              <input className={styles.toggle} type="checkbox" checked />
-              <label>Taste JavaScript</label>
-              <button className={styles.destroy}></button>
-            </div>
-            <input className={styles.edit} value="Create a TodoMVC template" />
-          </li>
-          <li>
-            <div className={styles.view}>
-              <input className={styles.toggle} type="checkbox" />
-              <label>Buy a unicorn</label>
-              <button className={styles.destroy}></button>
-            </div>
-            <input className={styles.edit} value="Rule the web" />
-          </li>
-        </ul>
-      </section>
-      <footer className={styles.footer}>
-        <Counter />
-        <Filters />
-        <Clear />
-      </footer>
+const Header = () => {
+  return (
+    <header className={styles.header}>
+      <h1>todos</h1>
+      <input
+        className={styles.newTodo}
+        placeholder="What needs to be done?"
+        autofocus
+      />
+    </header>
+  );
+};
+
+const TodoList = () => {
+  return (
+    <section className={styles.main}>
+      <input id="toggle-all" className={styles.toggleAll} type="checkbox" />
+      <label htmlFor="toggle-all">Mark all as complete</label>
+      <ul className={styles.todoList}>
+        <li className={styles.completed}>
+          <div className={styles.view}>
+            <input className={styles.toggle} type="checkbox" checked />
+            <label>Taste JavaScript</label>
+            <button className={styles.destroy}></button>
+          </div>
+          <input className={styles.edit} value="Create a TodoMVC template" />
+        </li>
+        <li>
+          <div className={styles.view}>
+            <input className={styles.toggle} type="checkbox" />
+            <label>Buy a unicorn</label>
+            <button className={styles.destroy}></button>
+          </div>
+          <input className={styles.edit} value="Rule the web" />
+        </li>
+      </ul>
     </section>
+  );
+};
+
+const MoreInfo = () => {
+  return (
     <footer className={styles.info}>
       <p>Double-click to edit a todo</p>
       <p>
@@ -83,6 +95,17 @@ const TodoApp = () => (
         Part of <a href="http://todomvc.com">TodoMVC</a>
       </p>
     </footer>
+  );
+};
+
+const TodoApp = () => (
+  <div>
+    <section className={styles.todoapp}>
+      <Header />
+      <TodoList />
+      <Footer />
+    </section>
+    <MoreInfo />
   </div>
 );
 
