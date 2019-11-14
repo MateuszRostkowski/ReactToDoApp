@@ -56,12 +56,14 @@ const ToggleAll = () => {
   );
 };
 
-const TodoItem = () => {
+const TodoItem = props => {
+  const { isDone, label } = props;
+
   return (
-    <li className={styles.completed}>
+    <li className={isDone ? styles.completed : ""}>
       <div className={styles.view}>
-        <input className={styles.toggle} type="checkbox" checked />
-        <label>Taste JavaScript</label>
+        <input className={styles.toggle} type="checkbox" checked={isDone} />
+        <label>{label}</label>
         <button className={styles.destroy}></button>
       </div>
       <input className={styles.edit} value="Create a TodoMVC template" />
@@ -72,8 +74,8 @@ const TodoItem = () => {
 const TodoList = () => {
   return (
     <ul className={styles.todoList}>
-      <TodoItem />
-      <TodoItem />
+      <TodoItem isDone={true} label={"Finish comonents extraction"} />
+      <TodoItem isDone={false} label={"Attach logic"} />
     </ul>
   );
 };
