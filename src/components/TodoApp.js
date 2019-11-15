@@ -52,14 +52,18 @@ const Controls = props => {
 };
 
 const TodoItem = props => {
-  const { isDone, label } = props;
+  const { isDone, label, id } = props;
 
   return (
     <li className={isDone ? styles.completed : ""}>
       <div className={styles.view}>
         <input className={styles.toggle} type="checkbox" checked={isDone} />
         <label>{label}</label>
-        <button className={styles.destroy}></button>
+        <button
+          className={styles.destroy}
+          onClick={() => {
+            props.onDeleteTodo(id);
+          }}></button>
       </div>
       <input className={styles.edit} value="Create a TodoMVC template" />
     </li>
@@ -70,7 +74,13 @@ const TodoList = props => {
   return (
     <ul className={styles.todoList}>
       {props.todos.map(todo => (
-        <TodoItem key={todo.id} isDone={todo.isDone} label={todo.label} />
+        <TodoItem
+          onDeleteTodo={props.onDeleteTodo}
+          key={todo.id}
+          id={todo.id}
+          isDone={todo.isDone}
+          label={todo.label}
+        />
       ))}
     </ul>
   );
@@ -134,6 +144,14 @@ class TodoApp extends React.Component {
     });
   };
 
+  delteTodo = id => {
+    const newTodos = this.state.todos.filter(element => element.id !== id);
+
+    this.setState({
+      todos: newTodos
+    });
+  };
+
   handleChange = newValue => {
     if (newValue.length > 37) {
       return;
@@ -157,7 +175,7 @@ class TodoApp extends React.Component {
           </header>
           <section className={styles.main}>
             <ToggleAll />
-            <TodoList todos={this.state.todos} />
+            <TodoList todos={this.state.todos} onDeleteTodo={this.delteTodo} />
           </section>
           <Controls
             itemsLeft={this.todosLeft}
