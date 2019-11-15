@@ -1,6 +1,6 @@
 import React, { Fragment } from "react";
-import uuid from "uuid";
 import styles from "./TodoApp.module.css";
+import { todos } from "./data";
 
 const Counter = () => {
   return (
@@ -8,6 +8,10 @@ const Counter = () => {
       <strong>0</strong> item left
     </span>
   );
+};
+
+const Clear = () => {
+  return <button className={styles.clearCompleted}>Clear completed</button>;
 };
 
 const Filters = () => {
@@ -28,10 +32,6 @@ const Filters = () => {
   );
 };
 
-const Clear = () => {
-  return <button className={styles.clearCompleted}>Clear completed</button>;
-};
-
 const Controls = () => {
   return (
     <footer className={styles.footer}>
@@ -39,21 +39,6 @@ const Controls = () => {
       <Filters />
       <Clear />
     </footer>
-  );
-};
-
-const TodoInput = () => {
-  return (
-    <input className={styles.newTodo} placeholder="What needs to be done?" />
-  );
-};
-
-const ToggleAll = () => {
-  return (
-    <Fragment>
-      <input id="toggle-all" className={styles.toggleAll} type="checkbox" />
-      <label htmlFor="toggle-all">Mark all as complete</label>
-    </Fragment>
   );
 };
 
@@ -73,28 +58,6 @@ const TodoItem = props => {
 };
 
 const TodoList = () => {
-  const todos = [
-    {
-      id: uuid.v4(),
-      isDone: true,
-      label: "Finish components"
-    },
-    {
-      id: uuid.v4(),
-      isDone: false,
-      label: "Finish components"
-    },
-    {
-      id: uuid.v4(),
-      isDone: true,
-      label: "Finish components"
-    },
-    {
-      id: uuid.v4(),
-      isDone: false,
-      label: "Make smthing"
-    }
-  ];
   return (
     <ul className={styles.todoList}>
       {todos.map(todo => (
@@ -104,38 +67,57 @@ const TodoList = () => {
   );
 };
 
-const MoreInfo = () => {
+const TodoInput = () => {
   return (
-    <footer className={styles.info}>
-      <p>Double-click to edit a todo</p>
-      <p>
-        Template by <a href="http://sindresorhus.com">Sindre Sorhus</a>
-      </p>
-      <p>
-        Created by <a href="http://todomvc.com">you</a>
-      </p>
-      <p>
-        Part of <a href="http://todomvc.com">TodoMVC</a>
-      </p>
-    </footer>
+    <input
+      className={styles.newTodo}
+      placeholder="What needs to be done?"
+      autofocus
+    />
   );
 };
 
-const TodoApp = () => (
-  <div>
-    <section className={styles.todoapp}>
-      <header className={styles.header}>
-        <h1>todos</h1>
-        <TodoInput />
-      </header>
-      <section className={styles.main}>
-        <ToggleAll />
-        <TodoList />
-      </section>
-      <Controls />
-    </section>
-    <MoreInfo />
-  </div>
-);
+const ToggleAll = () => {
+  return (
+    <Fragment>
+      <input id="toggle-all" className={styles.toggleAll} type="checkbox" />
+      <label htmlFor="toggle-all">Mark all as complete</label>
+    </Fragment>
+  );
+};
+
+class TodoApp extends React.Component {
+  state = {};
+
+  render() {
+    return (
+      <div>
+        <section className={styles.todoapp}>
+          <header className={styles.header}>
+            <h1>todos</h1>
+            <TodoInput />
+          </header>
+          <section className={styles.main}>
+            <ToggleAll />
+            <TodoList />
+          </section>
+          <Controls />
+        </section>
+        <footer className={styles.info}>
+          <p>Double-click to edit a todo</p>
+          <p>
+            Template by <a href="http://sindresorhus.com">Sindre Sorhus</a>
+          </p>
+          <p>
+            Created by <a href="http://todomvc.com">you</a>
+          </p>
+          <p>
+            Part of <a href="http://todomvc.com">TodoMVC</a>
+          </p>
+        </footer>
+      </div>
+    );
+  }
+}
 
 export default TodoApp;
