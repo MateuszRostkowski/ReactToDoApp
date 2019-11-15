@@ -12,8 +12,14 @@ const Counter = props => {
   );
 };
 
-const Clear = () => {
-  return <button className={styles.clearCompleted}>Clear completed</button>;
+const Clear = props => {
+  return (
+    <Fragment>
+      {props.isClearVisible && (
+        <button className={styles.clearCompleted}>Clear completed</button>
+      )}
+    </Fragment>
+  );
 };
 
 const Filters = () => {
@@ -35,11 +41,13 @@ const Filters = () => {
 };
 
 const Controls = props => {
+  const { itemsLeft, isClearVisible } = props;
+
   return (
     <footer className={styles.footer}>
-      <Counter itemsLeft={props.itemsLeft} />
+      <Counter itemsLeft={itemsLeft} />
       <Filters />
-      <Clear />
+      <Clear isClearVisible={isClearVisible} />
     </footer>
   );
 };
@@ -99,8 +107,11 @@ class TodoApp extends React.Component {
     return this.state.todos.filter(todo => todo.isDone === false).length;
   }
 
-  // siClearVisible
-  // todosLeft
+  get isClearVisible() {
+    return this.state.todos.some(todo => todo.isDone === true);
+  }
+
+  // isClearVisible
 
   render() {
     return (
@@ -114,7 +125,10 @@ class TodoApp extends React.Component {
             <ToggleAll />
             <TodoList todos={this.state.todos} />
           </section>
-          <Controls itemsLeft={this.todosLeft} />
+          <Controls
+            itemsLeft={this.todosLeft}
+            isClearVisible={this.isClearVisible}
+          />
         </section>
         <footer className={styles.info}>
           <p>Double-click to edit a todo</p>
