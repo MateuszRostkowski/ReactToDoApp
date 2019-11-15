@@ -14,11 +14,9 @@ const Counter = props => {
 
 const Clear = props => {
   return (
-    <Fragment>
-      {props.isClearVisible && (
-        <button className={styles.clearCompleted}>Clear completed</button>
-      )}
-    </Fragment>
+    props.isClearVisible && (
+      <button className={styles.clearCompleted}>Clear completed</button>
+    )
   );
 };
 
