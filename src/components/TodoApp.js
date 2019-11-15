@@ -83,7 +83,7 @@ const TodoInput = props => {
       placeholder="What needs to be done?"
       value={props.value}
       onKeyPress={event => {
-        if (event.key === "Enter") {
+        if (event.key === "Enter" && props.value.length >= 1) {
           props.onTodoAdd();
         }
       }}
