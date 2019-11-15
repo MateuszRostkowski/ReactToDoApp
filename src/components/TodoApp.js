@@ -87,7 +87,14 @@ const ToggleAll = () => {
 };
 
 class TodoApp extends React.Component {
-  state = {};
+  state = {
+    todos,
+    selectedFilter: "all",
+    newTodoValue: ""
+  };
+
+  // siClearVisible
+  // todosLeft
 
   render() {
     return (
