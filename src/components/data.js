@@ -3,7 +3,7 @@ import uuid from "uuid";
 export const todos = [
   {
     id: uuid.v4(),
-    isDone: true,
+    isDone: false,
     label: "Finish components extraction"
   },
   {
@@ -18,7 +18,7 @@ export const todos = [
   },
   {
     id: uuid.v4(),
-    isDone: true,
+    isDone: false,
     label: "Finish components extraction"
   }
 ];

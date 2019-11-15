@@ -2,10 +2,12 @@ import React, { Fragment } from "react";
 import styles from "./TodoApp.module.css";
 import { todos } from "./data";
 
-const Counter = () => {
+const Counter = props => {
+  const { itemsLeft } = props;
+
   return (
     <span className={styles.todoCount}>
-      <strong>0</strong> item left
+      <strong>{itemsLeft}</strong> item{itemsLeft !== 1 && "s"} left
     </span>
   );
 };
@@ -32,10 +34,10 @@ const Filters = () => {
   );
 };
 
-const Controls = () => {
+const Controls = props => {
   return (
     <footer className={styles.footer}>
-      <Counter />
+      <Counter itemsLeft={props.itemsLeft} />
       <Filters />
       <Clear />
     </footer>
@@ -57,10 +59,10 @@ const TodoItem = props => {
   );
 };
 
-const TodoList = () => {
+const TodoList = props => {
   return (
     <ul className={styles.todoList}>
-      {todos.map(todo => (
+      {props.todos.map(todo => (
         <TodoItem key={todo.id} isDone={todo.isDone} label={todo.label} />
       ))}
     </ul>
@@ -93,6 +95,10 @@ class TodoApp extends React.Component {
     newTodoValue: ""
   };
 
+  get todosLeft() {
+    return this.state.todos.filter(todo => todo.isDone === false).length;
+  }
+
   // siClearVisible
   // todosLeft
 
@@ -106,9 +112,9 @@ class TodoApp extends React.Component {
           </header>
           <section className={styles.main}>
             <ToggleAll />
-            <TodoList />
+            <TodoList todos={this.state.todos} />
           </section>
-          <Controls />
+          <Controls itemsLeft={this.todosLeft} />
         </section>
         <footer className={styles.info}>
           <p>Double-click to edit a todo</p>
