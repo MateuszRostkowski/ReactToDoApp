@@ -1,6 +1,7 @@
 import React, { Fragment } from "react";
 import styles from "./TodoApp.module.css";
 import { todos } from "./data";
+import uuid from "uuid";
 
 const Counter = props => {
   const { itemsLeft } = props;
@@ -75,11 +76,17 @@ const TodoList = props => {
   );
 };
 
-const TodoInput = () => {
+const TodoInput = props => {
   return (
     <input
       className={styles.newTodo}
       placeholder="What needs to be done?"
+      value={props.value}
+      onKeyPress={event => {
+        if (event.key === "Enter") {
+          props.onTodoAdd();
+        }
+      }}
       autofocus
     />
   );
@@ -98,7 +105,7 @@ class TodoApp extends React.Component {
   state = {
     todos,
     selectedFilter: "all",
-    newTodoValue: ""
+    newTodoValue: "Buy milk"
   };
 
   get todosLeft() {
@@ -109,6 +116,21 @@ class TodoApp extends React.Component {
     return this.state.todos.some(todo => todo.isDone === true);
   }
 
+  addTodo = () => {
+    const newTodo = {
+      id: uuid.v4(),
+      isDone: false,
+      label: this.state.newTodoValue
+    };
+
+    const newTodos = [newTodo, ...this.state.todos];
+
+    this.setState({
+      todos: newTodos,
+      newTodoValue: ""
+    });
+  };
+
   // isClearVisible
 
   render() {
@@ -117,7 +139,10 @@ class TodoApp extends React.Component {
         <section className={styles.todoapp}>
           <header className={styles.header}>
             <h1>todos</h1>
-            <TodoInput />
+            <TodoInput
+              value={this.state.newTodoValue}
+              onTodoAdd={this.addTodo}
+            />
           </header>
           <section className={styles.main}>
             <ToggleAll />
