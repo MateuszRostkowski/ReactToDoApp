@@ -87,6 +87,9 @@ const TodoInput = props => {
           props.onTodoAdd();
         }
       }}
+      onChange={event => {
+        props.onValueChange(event.target.value);
+      }}
       autofocus
     />
   );
@@ -131,7 +134,14 @@ class TodoApp extends React.Component {
     });
   };
 
-  // isClearVisible
+  handleChange = newValue => {
+    if (newValue.length > 37) {
+      return;
+    }
+    this.setState({
+      newTodoValue: newValue
+    });
+  };
 
   render() {
     return (
@@ -142,6 +152,7 @@ class TodoApp extends React.Component {
             <TodoInput
               value={this.state.newTodoValue}
               onTodoAdd={this.addTodo}
+              onValueChange={this.handleChange}
             />
           </header>
           <section className={styles.main}>
