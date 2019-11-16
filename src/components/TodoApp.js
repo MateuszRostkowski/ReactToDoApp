@@ -57,7 +57,9 @@ const TodoItem = props => {
   return (
     <li className={isDone ? styles.completed : ""}>
       <div className={styles.view}>
-        <input className={styles.toggle} type="checkbox" checked={isDone} />
+        <input readOnly className={styles.toggle} type="checkbox" checked={isDone} onClick={() => {
+          console.log(`You clicked ${id}`)
+        }}/>
         <label>{label}</label>
         <button
           className={styles.destroy}
@@ -65,7 +67,7 @@ const TodoItem = props => {
             props.onDeleteTodo(id);
           }}></button>
       </div>
-      <input className={styles.edit} value="Create a TodoMVC template" />
+      <input readOnly className={styles.edit} value="Create a TodoMVC template" />
     </li>
   );
 };
@@ -100,7 +102,7 @@ const TodoInput = props => {
       onChange={event => {
         props.onValueChange(event.target.value);
       }}
-      autofocus
+      autoFocus
     />
   );
 };
@@ -121,6 +123,17 @@ class TodoApp extends React.Component {
     newTodoValue: "Buy milk"
   };
 
+  componentDidMount() {
+    const todos = JSON.parse(localStorage.getItem("todos")) || [];
+    this.setState({
+      todos
+    });
+  }
+
+  componentDidUpdate() {
+    localStorage.setItem("todos", JSON.stringify(this.state.todos));
+  }
+
   get todosLeft() {
     return this.state.todos.filter(todo => todo.isDone === false).length;
   }
@@ -130,32 +143,37 @@ class TodoApp extends React.Component {
   }
 
   addTodo = () => {
+    // [1, 2, 3] -> [4, 1, 2, 3]
+    if (this.state.newTodoValue.length < 2) {
+      return;
+    }
+
     const newTodo = {
       id: uuid.v4(),
       isDone: false,
       label: this.state.newTodoValue
     };
-
     const newTodos = [newTodo, ...this.state.todos];
-
     this.setState({
       todos: newTodos,
       newTodoValue: ""
     });
   };
 
-  delteTodo = id => {
-    const newTodos = this.state.todos.filter(element => element.id !== id);
-
+  deleteTodo = id => {
+    console.log(id);
+    // [1, 2, 3, 4, 5] -> [1, 2, 4, 5]
+    const newTodos = this.state.todos.filter(todo => todo.id !== id);
     this.setState({
       todos: newTodos
     });
   };
 
   handleChange = newValue => {
-    if (newValue.length > 37) {
+    if (newValue.length > 40) {
       return;
     }
+
     this.setState({
       newTodoValue: newValue
     });
@@ -175,7 +193,7 @@ class TodoApp extends React.Component {
           </header>
           <section className={styles.main}>
             <ToggleAll />
-            <TodoList todos={this.state.todos} onDeleteTodo={this.delteTodo} />
+            <TodoList todos={this.state.todos} onDeleteTodo={this.deleteTodo} />
           </section>
           <Controls
             itemsLeft={this.todosLeft}
