@@ -8,7 +8,7 @@ const Counter = props => {
 
   return (
     <span className={styles.todoCount}>
-      <strong>{itemsLeft}</strong> item{itemsLeft !== 1 && "s"} left
+      <b>{itemsLeft}</b> item{itemsLeft !== 1 && "s"} left
     </span>
   );
 };
@@ -16,7 +16,9 @@ const Counter = props => {
 const Clear = props => {
   return (
     props.isClearVisible && (
-      <button className={styles.clearCompleted}>Clear completed</button>
+      <button className={styles.clearCompleted} onClick={() => {
+        props.onDeleteCompleted();
+      }}>Clear completed</button>
     )
   );
 };
@@ -40,13 +42,13 @@ const Filters = () => {
 };
 
 const Controls = props => {
-  const { itemsLeft, isClearVisible } = props;
+  const { itemsLeft, isClearVisible, onDeleteCompleted } = props;
 
   return (
     <footer className={styles.footer}>
       <Counter itemsLeft={itemsLeft} />
-      <Filters />
-      <Clear isClearVisible={isClearVisible} />
+      <Clear isClearVisible={isClearVisible} onDeleteCompleted={onDeleteCompleted} />
+      <Filters />      
     </footer>
   );
 };
@@ -57,17 +59,28 @@ const TodoItem = props => {
   return (
     <li className={isDone ? styles.completed : ""}>
       <div className={styles.view}>
-        <input readOnly className={styles.toggle} type="checkbox" checked={isDone} onClick={() => {
-          console.log(`You clicked ${id}`)
-        }}/>
+        <input
+          readOnly
+          className={styles.toggle}
+          type="checkbox"
+          checked={isDone}
+          onClick={() => {
+            props.onChangeStateTodo(id);
+          }}
+        />
         <label>{label}</label>
         <button
           className={styles.destroy}
           onClick={() => {
             props.onDeleteTodo(id);
-          }}></button>
+          }}
+        ></button>
       </div>
-      <input readOnly className={styles.edit} value="Create a TodoMVC template" />
+      <input
+        readOnly
+        className={styles.edit}
+        value="Create a TodoMVC template"
+      />
     </li>
   );
 };
@@ -78,6 +91,7 @@ const TodoList = props => {
       {props.todos.map(todo => (
         <TodoItem
           onDeleteTodo={props.onDeleteTodo}
+          onChangeStateTodo={props.onChangeStateTodo}
           key={todo.id}
           id={todo.id}
           isDone={todo.isDone}
@@ -107,10 +121,12 @@ const TodoInput = props => {
   );
 };
 
-const ToggleAll = () => {
+const ToggleAll = props => {
   return (
     <Fragment>
-      <input id="toggle-all" className={styles.toggleAll} type="checkbox" />
+      <input id="toggle-all" className={styles.toggleAll} type="checkbox" onClick={() => {
+        props.onToggleAllTodos()
+      }}/>
       <label htmlFor="toggle-all">Mark all as complete</label>
     </Fragment>
   );
@@ -142,6 +158,30 @@ class TodoApp extends React.Component {
     return this.state.todos.some(todo => todo.isDone === true);
   }
 
+  changeStateTodo = (id)  => {
+    const newTodos = [...this.state.todos];
+    console.log(newTodos)
+    const newTodo = newTodos.filter(todo => todo.id === id)[0]
+    newTodo.isDone = newTodo.isDone ? false : true;
+
+    this.setState({
+      todos: newTodos,
+    });
+  };
+
+  toggleAllTodos = () => {
+    const newTodos = [...this.state.todos];
+    const change = newTodos[0].isDone ? false : true;
+
+    newTodos.map(todo => todo.isDone = change);
+
+    this.setState({
+      todos: newTodos,
+    });
+    // console.log(newTodos2)
+  }
+
+
   addTodo = () => {
     // [1, 2, 3] -> [4, 1, 2, 3]
     if (this.state.newTodoValue.length < 2) {
@@ -169,6 +209,13 @@ class TodoApp extends React.Component {
     });
   };
 
+  deleteCompleted = () => {
+    const newTodos = this.state.todos.filter(todo => todo.isDone !== true);
+    this.setState({
+      todos: newTodos
+    });
+  }
+
   handleChange = newValue => {
     if (newValue.length > 40) {
       return;
@@ -192,12 +239,17 @@ class TodoApp extends React.Component {
             />
           </header>
           <section className={styles.main}>
-            <ToggleAll />
-            <TodoList todos={this.state.todos} onDeleteTodo={this.deleteTodo} />
+            <ToggleAll onToggleAllTodos={this.toggleAllTodos} />
+            <TodoList
+              todos={this.state.todos}
+              onDeleteTodo={this.deleteTodo}
+              onChangeStateTodo={this.changeStateTodo}
+            />
           </section>
           <Controls
             itemsLeft={this.todosLeft}
             isClearVisible={this.isClearVisible}
+            onDeleteCompleted={this.deleteCompleted}
           />
         </section>
         <footer className={styles.info}>
