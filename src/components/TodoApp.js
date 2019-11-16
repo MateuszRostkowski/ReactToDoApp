@@ -16,39 +16,66 @@ const Counter = props => {
 const Clear = props => {
   return (
     props.isClearVisible && (
-      <button className={styles.clearCompleted} onClick={() => {
-        props.onDeleteCompleted();
-      }}>Clear completed</button>
+      <button
+        className={styles.clearCompleted}
+        onClick={() => {
+          props.onDeleteCompleted();
+        }}
+      >
+        Clear completed
+      </button>
     )
   );
 };
 
-const Filters = () => {
+const Filters = props => {
+  const { onChangeFilter, selectedFilter } = props;
+
   return (
     <ul className={styles.filters}>
-      <li>
-        <a className={styles.selected} href="#/">
-          All
-        </a>
+      <li
+        className={selectedFilter === "all" ? styles.selected : null}
+        onClick={() => {
+          onChangeFilter("all");
+        }}
+      >
+        All
       </li>
-      <li>
-        <a href="#/active">Active</a>
+      <li className={selectedFilter === "active" ? styles.selected : null}
+        onClick={() => {
+          onChangeFilter("active");
+        }}
+      >
+        Active
       </li>
-      <li>
-        <a href="#/completed">Completed</a>
+      <li className={selectedFilter === "completed" ? styles.selected : null}
+        onClick={() => {
+          onChangeFilter("completed");
+        }}
+      >
+        Completed
       </li>
     </ul>
   );
 };
 
 const Controls = props => {
-  const { itemsLeft, isClearVisible, onDeleteCompleted } = props;
+  const {
+    itemsLeft,
+    isClearVisible,
+    onDeleteCompleted,
+    onChangeFilter,
+    selectedFilter
+  } = props;
 
   return (
     <footer className={styles.footer}>
       <Counter itemsLeft={itemsLeft} />
-      <Clear isClearVisible={isClearVisible} onDeleteCompleted={onDeleteCompleted} />
-      <Filters />      
+      <Clear
+        isClearVisible={isClearVisible}
+        onDeleteCompleted={onDeleteCompleted}
+      />
+      <Filters onChangeFilter={onChangeFilter} selectedFilter={selectedFilter} />
     </footer>
   );
 };
@@ -124,9 +151,14 @@ const TodoInput = props => {
 const ToggleAll = props => {
   return (
     <Fragment>
-      <input id="toggle-all" className={styles.toggleAll} type="checkbox" onClick={() => {
-        props.onToggleAllTodos()
-      }}/>
+      <input
+        id="toggle-all"
+        className={styles.toggleAll}
+        type="checkbox"
+        onClick={() => {
+          props.onToggleAllTodos();
+        }}
+      />
       <label htmlFor="toggle-all">Mark all as complete</label>
     </Fragment>
   );
@@ -135,6 +167,7 @@ const ToggleAll = props => {
 class TodoApp extends React.Component {
   state = {
     todos,
+    displayTodos: JSON.parse(localStorage.getItem("todos")),
     selectedFilter: "all",
     newTodoValue: "Buy milk"
   };
@@ -142,7 +175,7 @@ class TodoApp extends React.Component {
   componentDidMount() {
     const todos = JSON.parse(localStorage.getItem("todos")) || [];
     this.setState({
-      todos
+      todos,
     });
   }
 
@@ -158,29 +191,75 @@ class TodoApp extends React.Component {
     return this.state.todos.some(todo => todo.isDone === true);
   }
 
-  changeStateTodo = (id)  => {
+  get activeTodos() {
+    return this.state.todos.filter(todo => todo.isDone === false);
+  }
+
+  get completedTodos() {
+    return this.state.todos.filter(todo => todo.isDone === true);
+  }
+
+  get todosToDisplay() {
+    return this.state.todos
+  }
+
+  displayTodos = filter => {
+        
+    switch (filter) {
+      case "active":
+        this.setState({
+          todos: this.activeTodos
+        });
+        break;
+      case "completed":
+        this.setState({
+          todos: this.completedTodos
+        });
+        break;
+      default:
+        this.setState({
+          todos: this.state.todos
+        });
+    }
+  };
+
+  changeStateTodo = id => {
     const newTodos = [...this.state.todos];
-    console.log(newTodos)
-    const newTodo = newTodos.filter(todo => todo.id === id)[0]
+    const newTodo = newTodos.filter(todo => todo.id === id)[0];
     newTodo.isDone = newTodo.isDone ? false : true;
 
     this.setState({
       todos: newTodos,
+      displayTodos: newTodos,
     });
+    this.displayTodos(this.state.selectedFilter);
   };
+
+  changeFilter = filter => {
+    this.setState({
+      selectedFilter: filter
+    });
+
+    this.displayTodos(filter);
+  };
+
+  // filterTodos = selectedFilter => {
+  //   const id = "";
+  //   const newTodos = this.state.todos.filter(todo => todo.id === id);
+  // };
 
   toggleAllTodos = () => {
     const newTodos = [...this.state.todos];
     const change = newTodos[0].isDone ? false : true;
 
-    newTodos.map(todo => todo.isDone = change);
+    newTodos.map(todo => (todo.isDone = change));
 
     this.setState({
       todos: newTodos,
+      displayTodos: newTodos,
     });
-    // console.log(newTodos2)
-  }
-
+    this.displayTodos(this.state.selectedFilter);
+  };
 
   addTodo = () => {
     // [1, 2, 3] -> [4, 1, 2, 3]
@@ -193,10 +272,13 @@ class TodoApp extends React.Component {
       isDone: false,
       label: this.state.newTodoValue
     };
+
     const newTodos = [newTodo, ...this.state.todos];
+
     this.setState({
       todos: newTodos,
-      newTodoValue: ""
+      newTodoValue: "",
+      displayTodos: newTodos,
     });
   };
 
@@ -205,16 +287,20 @@ class TodoApp extends React.Component {
     // [1, 2, 3, 4, 5] -> [1, 2, 4, 5]
     const newTodos = this.state.todos.filter(todo => todo.id !== id);
     this.setState({
-      todos: newTodos
+      todos: newTodos,
+      displayTodos: newTodos,
     });
   };
 
   deleteCompleted = () => {
     const newTodos = this.state.todos.filter(todo => todo.isDone !== true);
     this.setState({
-      todos: newTodos
+      todos: newTodos,
+      displayTodos: newTodos,
+    }, () => {
+      this.displayTodos(this.state.selectedFilter);
     });
-  }
+  };
 
   handleChange = newValue => {
     if (newValue.length > 40) {
@@ -224,6 +310,7 @@ class TodoApp extends React.Component {
     this.setState({
       newTodoValue: newValue
     });
+    this.displayTodos(this.state.selectedFilter);
   };
 
   render() {
@@ -250,6 +337,8 @@ class TodoApp extends React.Component {
             itemsLeft={this.todosLeft}
             isClearVisible={this.isClearVisible}
             onDeleteCompleted={this.deleteCompleted}
+            onChangeFilter={this.changeFilter}
+            selectedFilter={this.state.selectedFilter}
           />
         </section>
         <footer className={styles.info}>

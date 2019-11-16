@@ -279,9 +279,6 @@ button {
 
 .filters li {
     display: inline;
-}
-
-.filters li a {
     color: inherit;
     margin: 13px;
     padding: 3px 7px;
@@ -294,8 +291,10 @@ button {
     border-color: rgba(175, 47, 47, 0.1);
 }
 
-.filters li a.selected {
+.filters li.selected {
     border-color: rgba(175, 47, 47, 0.2);
+    background-color: #949494;
+
 }
 
 .clearCompleted {
