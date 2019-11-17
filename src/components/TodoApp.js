@@ -86,10 +86,10 @@ const Controls = props => {
 };
 
 const TodoItem = props => {
-  const { isDone, label, id, onChangeStateTodo, onDeleteTodo } = props;
+  const { allowEdit, isDone, label, id, onChangeStateTodo, onDeleteTodo, onTodoEdit } = props;
 
   return (
-    <li className={isDone ? styles.completed : ""}>
+    <li className={`${isDone ? styles.completed : ""} ${allowEdit ? styles.editing: ""}`}>
       <div className={styles.view}>
         <input
           readOnly
@@ -100,7 +100,9 @@ const TodoItem = props => {
             onChangeStateTodo(id);
           }}
         />
-        <label
+        <label onDoubleClick={() => {
+          onTodoEdit(id)
+        }}
         >
           {label}
         </label>
@@ -114,14 +116,14 @@ const TodoItem = props => {
       <input
         readOnly
         className={styles.edit}
-        value="Create a TodoMVC template"
+        value={label}
       />
     </li>
   );
 };
 
 const TodoList = props => {
-  const { onDeleteTodo, onChangeStateTodo } = props;
+  const { onDeleteTodo, onChangeStateTodo, onTodoEdit } = props;
 
   return (
     <ul className={styles.todoList}>
@@ -133,6 +135,8 @@ const TodoList = props => {
           id={todo.id}
           isDone={todo.isDone}
           label={todo.label}
+          allowEdit={todo.allowEdit}
+          onTodoEdit={onTodoEdit}
         />
       ))}
     </ul>
@@ -179,7 +183,8 @@ class TodoApp extends React.Component {
     todos,
     displayTodos: JSON.parse(localStorage.getItem("todos")),
     selectedFilter: "all",
-    newTodoValue: "Buy milk"
+    newTodoValue: "",
+    allowEdit: false
   };
 
   componentDidMount() {
@@ -242,8 +247,10 @@ class TodoApp extends React.Component {
     this.setState({
       todos: newTodos,
       displayTodos: newTodos
+    },
+    () => {
+      this.displayTodos(this.state.selectedFilter);
     });
-    this.displayTodos(this.state.selectedFilter);
   };
 
   changeFilter = filter => {
@@ -275,6 +282,24 @@ class TodoApp extends React.Component {
     );
   };
 
+  todoEdit = id => {
+    const newTodos = this.state.todos.map(todo => ({
+      ...todo,
+      allowEdit: false
+    }));
+
+    const newTodo = newTodos.filter(todo => todo.id === id)[0];
+    newTodo.allowEdit = newTodo.allowEdit ? false : true;
+
+    this.setState({
+      todos: newTodos,
+      displayTodos: newTodos
+    },
+    () => {
+      this.displayTodos(this.state.selectedFilter);
+    });
+  }
+
   addTodo = () => {
     // [1, 2, 3] -> [4, 1, 2, 3]
     if (this.state.newTodoValue.length < 2) {
@@ -284,7 +309,8 @@ class TodoApp extends React.Component {
     const newTodo = {
       id: uuid.v4(),
       isDone: false,
-      label: this.state.newTodoValue
+      label: this.state.newTodoValue,
+      todoEdit: false
     };
 
     const newTodos = [newTodo, ...this.state.todos];
@@ -358,6 +384,7 @@ class TodoApp extends React.Component {
               todos={this.state.displayTodos}
               onDeleteTodo={this.deleteTodo}
               onChangeStateTodo={this.changeStateTodo}
+              onTodoEdit={this.todoEdit}
             />
           </section>
           <Controls
