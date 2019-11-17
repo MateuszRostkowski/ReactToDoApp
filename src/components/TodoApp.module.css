@@ -108,6 +108,7 @@ button {
     left: -13px;
     -webkit-transform: rotate(90deg);
     transform: rotate(90deg);
+    cursor: pointer;
 }
 
 .toggleAll+label:before {
@@ -167,6 +168,7 @@ button {
     /* Mobile Safari */
     -webkit-appearance: none;
     appearance: none;
+    cursor: pointer;
 }
 
 .todoList li .toggle {
@@ -215,6 +217,7 @@ button {
     color: #cc9a9a;
     margin-bottom: 11px;
     transition: color 0.2s ease-out;
+    cursor: pointer;
 }
 
 .todoList li .destroy:hover {
@@ -285,6 +288,7 @@ button {
     text-decoration: none;
     border: 1px solid transparent;
     border-radius: 3px;
+    cursor: pointer;
 }
 
 .filters li a:hover {
@@ -304,6 +308,7 @@ button {
 
 .clearCompleted:hover {
     text-decoration: underline;
+    cursor: pointer;
 }
 
 .info {
