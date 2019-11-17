@@ -41,14 +41,16 @@ const Filters = props => {
       >
         All
       </li>
-      <li className={selectedFilter === "active" ? styles.selected : null}
+      <li
+        className={selectedFilter === "active" ? styles.selected : null}
         onClick={() => {
           onChangeFilter("active");
         }}
       >
         Active
       </li>
-      <li className={selectedFilter === "completed" ? styles.selected : null}
+      <li
+        className={selectedFilter === "completed" ? styles.selected : null}
         onClick={() => {
           onChangeFilter("completed");
         }}
@@ -75,13 +77,16 @@ const Controls = props => {
         isClearVisible={isClearVisible}
         onDeleteCompleted={onDeleteCompleted}
       />
-      <Filters onChangeFilter={onChangeFilter} selectedFilter={selectedFilter} />
+      <Filters
+        onChangeFilter={onChangeFilter}
+        selectedFilter={selectedFilter}
+      />
     </footer>
   );
 };
 
 const TodoItem = props => {
-  const { isDone, label, id } = props;
+  const { isDone, label, id, onChangeStateTodo, onDeleteTodo } = props;
 
   return (
     <li className={isDone ? styles.completed : ""}>
@@ -92,14 +97,17 @@ const TodoItem = props => {
           type="checkbox"
           checked={isDone}
           onClick={() => {
-            props.onChangeStateTodo(id);
+            onChangeStateTodo(id);
           }}
         />
-        <label>{label}</label>
+        <label
+        >
+          {label}
+        </label>
         <button
           className={styles.destroy}
           onClick={() => {
-            props.onDeleteTodo(id);
+            onDeleteTodo(id);
           }}
         ></button>
       </div>
@@ -113,12 +121,14 @@ const TodoItem = props => {
 };
 
 const TodoList = props => {
+  const { onDeleteTodo, onChangeStateTodo } = props;
+
   return (
     <ul className={styles.todoList}>
       {props.todos.map(todo => (
         <TodoItem
-          onDeleteTodo={props.onDeleteTodo}
-          onChangeStateTodo={props.onChangeStateTodo}
+          onDeleteTodo={onDeleteTodo}
+          onChangeStateTodo={onChangeStateTodo}
           key={todo.id}
           id={todo.id}
           isDone={todo.isDone}
@@ -175,9 +185,11 @@ class TodoApp extends React.Component {
   componentDidMount() {
     const todos = JSON.parse(localStorage.getItem("todos")) || [];
     this.setState({
-      todos,
+      todos
     });
   }
+
+
 
   componentDidUpdate() {
     localStorage.setItem("todos", JSON.stringify(this.state.todos));
@@ -200,25 +212,24 @@ class TodoApp extends React.Component {
   }
 
   get todosToDisplay() {
-    return this.state.todos
+    return this.state.todos;
   }
 
   displayTodos = filter => {
-        
     switch (filter) {
       case "active":
         this.setState({
-          todos: this.activeTodos
+          displayTodos: this.activeTodos
         });
         break;
       case "completed":
         this.setState({
-          todos: this.completedTodos
+          displayTodos: this.completedTodos
         });
         break;
       default:
         this.setState({
-          todos: this.state.todos
+          displayTodos: this.state.todos
         });
     }
   };
@@ -230,35 +241,38 @@ class TodoApp extends React.Component {
 
     this.setState({
       todos: newTodos,
-      displayTodos: newTodos,
+      displayTodos: newTodos
     });
     this.displayTodos(this.state.selectedFilter);
   };
 
   changeFilter = filter => {
-    this.setState({
-      selectedFilter: filter
-    });
-
-    this.displayTodos(filter);
+    this.setState(
+      {
+        selectedFilter: filter
+      },
+      () => {
+        this.displayTodos(this.state.selectedFilter);
+      }
+    );
   };
 
-  // filterTodos = selectedFilter => {
-  //   const id = "";
-  //   const newTodos = this.state.todos.filter(todo => todo.id === id);
-  // };
-
   toggleAllTodos = () => {
-    const newTodos = [...this.state.todos];
-    const change = newTodos[0].isDone ? false : true;
+    const change = this.state.todos.some(todo => !todo.isDone);
+    const newTodos = this.state.todos.map(todo => ({
+      ...todo,
+      isDone: change
+    }));
 
-    newTodos.map(todo => (todo.isDone = change));
-
-    this.setState({
-      todos: newTodos,
-      displayTodos: newTodos,
-    });
-    this.displayTodos(this.state.selectedFilter);
+    this.setState(
+      {
+        todos: newTodos,
+        displayTodos: newTodos
+      },
+      () => {
+        this.displayTodos(this.state.selectedFilter);
+      }
+    );
   };
 
   addTodo = () => {
@@ -275,31 +289,44 @@ class TodoApp extends React.Component {
 
     const newTodos = [newTodo, ...this.state.todos];
 
-    this.setState({
-      todos: newTodos,
-      newTodoValue: "",
-      displayTodos: newTodos,
-    });
+    this.setState(
+      {
+        todos: newTodos,
+        newTodoValue: "",
+        displayTodos: newTodos
+      },
+      () => {
+        this.displayTodos(this.state.selectedFilter);
+      }
+    );
   };
 
   deleteTodo = id => {
     console.log(id);
     // [1, 2, 3, 4, 5] -> [1, 2, 4, 5]
     const newTodos = this.state.todos.filter(todo => todo.id !== id);
-    this.setState({
-      todos: newTodos,
-      displayTodos: newTodos,
-    });
+    this.setState(
+      {
+        todos: newTodos,
+        displayTodos: newTodos
+      },
+      () => {
+        this.displayTodos(this.state.selectedFilter);
+      }
+    );
   };
 
   deleteCompleted = () => {
     const newTodos = this.state.todos.filter(todo => todo.isDone !== true);
-    this.setState({
-      todos: newTodos,
-      displayTodos: newTodos,
-    }, () => {
-      this.displayTodos(this.state.selectedFilter);
-    });
+    this.setState(
+      {
+        todos: newTodos,
+        displayTodos: newTodos
+      },
+      () => {
+        this.displayTodos(this.state.selectedFilter);
+      }
+    );
   };
 
   handleChange = newValue => {
@@ -328,7 +355,7 @@ class TodoApp extends React.Component {
           <section className={styles.main}>
             <ToggleAll onToggleAllTodos={this.toggleAllTodos} />
             <TodoList
-              todos={this.state.todos}
+              todos={this.state.displayTodos}
               onDeleteTodo={this.deleteTodo}
               onChangeStateTodo={this.changeStateTodo}
             />
