@@ -1,25 +1,30 @@
-import React, { Fragment } from "react";
+import React, { Fragment, useContext } from "react";
 import styles from "./TodoApp.module.css";
 import { todos } from "./data";
 import uuid from "uuid";
+import TodoContext, {
+  TodoConsumer,
+  TodoProvider
+} from "../contexts/TodoContext";
 
-const Counter = props => {
-  const { itemsLeft } = props;
-
+const Counter = () => {
+  const context = useContext(TodoContext);
+  console.log(context);
   return (
     <span className={styles.todoCount}>
-      <b>{itemsLeft}</b> item{itemsLeft !== 1 && "s"} left
+      <b>{context.todosLeft}</b> item{context.todosLeft !== 1 && "s"} left
     </span>
   );
 };
 
-const Clear = props => {
+const Clear = () => {
+  const context = useContext(TodoContext);
   return (
-    props.isClearVisible && (
+    context.isClearVisible && (
       <button
         className={styles.clearCompleted}
         onClick={() => {
-          props.onDeleteCompleted();
+          context.deleteCompleted();
         }}
       >
         Clear completed
@@ -28,31 +33,32 @@ const Clear = props => {
   );
 };
 
-const Filters = props => {
-  const { onChangeFilter, selectedFilter } = props;
-
+const Filters = () => {
+  const context = useContext(TodoContext);
   return (
     <ul className={styles.filters}>
       <li
-        className={selectedFilter === "all" ? styles.selected : null}
+        className={context.selectedFilter === "all" ? styles.selected : null}
         onClick={() => {
-          onChangeFilter("all");
+          context.changeFilter("all");
         }}
       >
         All
       </li>
       <li
-        className={selectedFilter === "active" ? styles.selected : null}
+        className={context.selectedFilter === "active" ? styles.selected : null}
         onClick={() => {
-          onChangeFilter("active");
+          context.changeFilter("active");
         }}
       >
         Active
       </li>
       <li
-        className={selectedFilter === "completed" ? styles.selected : null}
+        className={
+          context.selectedFilter === "completed" ? styles.selected : null
+        }
         onClick={() => {
-          onChangeFilter("completed");
+          context.changeFilter("completed");
         }}
       >
         Completed
@@ -62,6 +68,7 @@ const Filters = props => {
 };
 
 const Controls = props => {
+  const context = useContext(TodoContext);
   const {
     itemsLeft,
     isClearVisible,
@@ -86,8 +93,8 @@ const Controls = props => {
 };
 
 const TodoItem = props => {
-  const { isDone, label, id, onChangeStateTodo, onDeleteTodo } = props;
-
+  const { isDone, label, id } = props;
+  const context = useContext(TodoContext);
   return (
     <li className={isDone ? styles.completed : ""}>
       <div className={styles.view}>
@@ -97,14 +104,14 @@ const TodoItem = props => {
           type="checkbox"
           checked={isDone}
           onClick={() => {
-            onChangeStateTodo(id);
+            context.changeStateTodo(id);
           }}
         />
         <label>{label}</label>
         <button
           className={styles.destroy}
           onClick={() => {
-            onDeleteTodo(id);
+            context.deleteTodo(id);
           }}
         ></button>
       </div>
@@ -113,15 +120,12 @@ const TodoItem = props => {
   );
 };
 
-const TodoList = props => {
-  const { onDeleteTodo, onChangeStateTodo } = props;
-
+const TodoList = () => {
+  const context = useContext(TodoContext);
   return (
     <ul className={styles.todoList}>
-      {props.todos.map(todo => (
+      {context.visibleTodos.map(todo => (
         <TodoItem
-          onDeleteTodo={onDeleteTodo}
-          onChangeStateTodo={onChangeStateTodo}
           key={todo.id}
           id={todo.id}
           isDone={todo.isDone}
@@ -132,26 +136,28 @@ const TodoList = props => {
   );
 };
 
-const TodoInput = props => {
+const TodoInput = () => {
+  const context = useContext(TodoContext);
   return (
     <input
       className={styles.newTodo}
       placeholder="What needs to be done?"
-      value={props.value}
+      value={context.newTodoValue}
       onKeyPress={event => {
-        if (event.key === "Enter" && props.value.length >= 1) {
-          props.onTodoAdd();
+        if (event.key === "Enter" && context.newTodoValue.length >= 1) {
+          context.addTodo();
         }
       }}
       onChange={event => {
-        props.onValueChange(event.target.value);
+        context.handleChange(event.target.value);
       }}
       autoFocus
     />
   );
 };
 
-const ToggleAll = props => {
+const ToggleAll = () => {
+  const context = useContext(TodoContext);
   return (
     <Fragment>
       <input
@@ -159,7 +165,7 @@ const ToggleAll = props => {
         className={styles.toggleAll}
         type="checkbox"
         onClick={() => {
-          props.onToggleAllTodos();
+          context.toggleAllTodos();
         }}
       />
       <label htmlFor="toggle-all">Mark all as complete</label>
@@ -168,165 +174,35 @@ const ToggleAll = props => {
 };
 
 class TodoApp extends React.Component {
-  state = {
-    todos,
-    selectedFilter: "all",
-    newTodoValue: ""
-  };
-
-  componentDidMount() {
-    const todos = JSON.parse(localStorage.getItem("todos")) || [];
-    this.setState({
-      todos
-    });
-  }
-
-  componentDidUpdate() {
-    localStorage.setItem("todos", JSON.stringify(this.state.todos));
-  }
-
-  get todosLeft() {
-    return this.state.todos.filter(todo => todo.isDone === false).length;
-  }
-
-  get isClearVisible() {
-    return this.visibleTodos.some(todo => todo.isDone === true);
-  }
-
-  get activeTodos() {
-    return this.state.todos.filter(todo => todo.isDone === false);
-  }
-
-  get completedTodos() {
-    return this.state.todos.filter(todo => todo.isDone === true);
-  }
-
-  get visibleTodos() {
-    const { todos, selectedFilter } = this.state;
-    switch (selectedFilter) {
-      case "all":
-        return todos;
-      case "active":
-        return todos.filter(todo => !todo.isDone);
-      case "completed":
-        return todos.filter(todo => todo.isDone);
-    }
-  }
-
-  changeStateTodo = id => {
-    const newTodos = [...this.state.todos];
-    const newTodo = newTodos.filter(todo => todo.id === id)[0];
-    newTodo.isDone = newTodo.isDone ? false : true;
-
-    this.setState({
-      todos: newTodos
-    });
-  };
-
-  changeFilter = filter => {
-    this.setState({
-      selectedFilter: filter
-    });
-  };
-
-  toggleAllTodos = () => {
-    const change = this.state.todos.some(todo => !todo.isDone);
-    const newTodos = this.state.todos.map(todo => ({
-      ...todo,
-      isDone: change
-    }));
-
-    this.setState({
-      todos: newTodos
-    });
-  };
-
-  addTodo = () => {
-    // [1, 2, 3] -> [4, 1, 2, 3]
-    if (this.state.newTodoValue.length < 2) {
-      return;
-    }
-
-    const newTodo = {
-      id: uuid.v4(),
-      isDone: false,
-      label: this.state.newTodoValue
-    };
-
-    const newTodos = [newTodo, ...this.state.todos];
-
-    this.setState({
-      todos: newTodos,
-      newTodoValue: ""
-    });
-  };
-
-  deleteTodo = id => {
-    console.log(id);
-    // [1, 2, 3, 4, 5] -> [1, 2, 4, 5]
-    const newTodos = this.state.todos.filter(todo => todo.id !== id);
-    this.setState({
-      todos: newTodos
-    });
-  };
-
-  deleteCompleted = () => {
-    const newTodos = this.state.todos.filter(todo => todo.isDone !== true);
-    this.setState({
-      todos: newTodos
-    });
-  };
-
-  handleChange = newValue => {
-    if (newValue.length > 40) {
-      return;
-    }
-
-    this.setState({
-      newTodoValue: newValue
-    });
-  };
-
+  
   render() {
     return (
-      <div>
-        <section className={styles.todoapp}>
-          <header className={styles.header}>
-            <h1>todos</h1>
-            <TodoInput
-              value={this.state.newTodoValue}
-              onTodoAdd={this.addTodo}
-              onValueChange={this.handleChange}
-            />
-          </header>
-          <section className={styles.main}>
-            <ToggleAll onToggleAllTodos={this.toggleAllTodos} />
-            <TodoList
-              todos={this.visibleTodos}
-              onDeleteTodo={this.deleteTodo}
-              onChangeStateTodo={this.changeStateTodo}
-            />
+      <TodoProvider>
+        <div>
+          <section className={styles.todoapp}>
+            <header className={styles.header}>
+              <h1>todos</h1>
+              <TodoInput />
+            </header>
+            <section className={styles.main}>
+              <ToggleAll />
+              <TodoList />
+            </section>
+            <Controls />
           </section>
-          <Controls
-            itemsLeft={this.todosLeft}
-            isClearVisible={this.isClearVisible}
-            onDeleteCompleted={this.deleteCompleted}
-            onChangeFilter={this.changeFilter}
-            selectedFilter={this.state.selectedFilter}
-          />
-        </section>
-        <footer className={styles.info}>
-          <p>
-            Template by <a href="http://sindresorhus.com">Sindre Sorhus</a>
-          </p>
-          <p>
-            Created by <a href="http://todomvc.com">you</a>
-          </p>
-          <p>
-            Part of <a href="http://todomvc.com">TodoMVC</a>
-          </p>
-        </footer>
-      </div>
+          <footer className={styles.info}>
+            <p>
+              Template by <a href="http://sindresorhus.com">Sindre Sorhus</a>
+            </p>
+            <p>
+              Created by <a href="http://todomvc.com">you</a>
+            </p>
+            <p>
+              Part of <a href="http://todomvc.com">TodoMVC</a>
+            </p>
+          </footer>
+        </div>
+      </TodoProvider>
     );
   }
 }
