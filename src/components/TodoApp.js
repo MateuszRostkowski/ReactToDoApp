@@ -1,15 +1,11 @@
 import React, { Fragment, useContext } from "react";
 import styles from "./TodoApp.module.css";
-import { todos } from "./data";
-import uuid from "uuid";
 import TodoContext, {
-  TodoConsumer,
   TodoProvider
 } from "../contexts/TodoContext";
 
 const Counter = () => {
   const context = useContext(TodoContext);
-  console.log(context);
   return (
     <span className={styles.todoCount}>
       <b>{context.todosLeft}</b> item{context.todosLeft !== 1 && "s"} left
@@ -35,62 +31,31 @@ const Clear = () => {
 
 const Filters = () => {
   const context = useContext(TodoContext);
+  const filters = ["all", "active", "completed"];
   return (
     <ul className={styles.filters}>
-      <li
-        className={context.selectedFilter === "all" ? styles.selected : null}
-        onClick={() => {
-          context.changeFilter("all");
-        }}
-      >
-        All
-      </li>
-      <li
-        className={context.selectedFilter === "active" ? styles.selected : null}
-        onClick={() => {
-          context.changeFilter("active");
-        }}
-      >
-        Active
-      </li>
-      <li
-        className={
-          context.selectedFilter === "completed" ? styles.selected : null
-        }
-        onClick={() => {
-          context.changeFilter("completed");
-        }}
-      >
-        Completed
-      </li>
+      {filters.map(filter => (
+        <li
+          key={filter}
+          className={context.selectedFilter === filter ? styles.selected : null}
+          onClick={() => {
+            context.changeFilter(filter);
+          }}
+        >
+          {filter}
+        </li>
+      ))}
     </ul>
   );
 };
 
-const Controls = props => {
-  const context = useContext(TodoContext);
-  const {
-    itemsLeft,
-    isClearVisible,
-    onDeleteCompleted,
-    onChangeFilter,
-    selectedFilter
-  } = props;
-
-  return (
-    <footer className={styles.footer}>
-      <Counter itemsLeft={itemsLeft} />
-      <Clear
-        isClearVisible={isClearVisible}
-        onDeleteCompleted={onDeleteCompleted}
-      />
-      <Filters
-        onChangeFilter={onChangeFilter}
-        selectedFilter={selectedFilter}
-      />
-    </footer>
-  );
-};
+const Controls = () => (
+  <footer className={styles.footer}>
+    <Counter />
+    <Clear />
+    <Filters />
+  </footer>
+);
 
 const TodoItem = props => {
   const { isDone, label, id } = props;
@@ -174,7 +139,6 @@ const ToggleAll = () => {
 };
 
 class TodoApp extends React.Component {
-  
   render() {
     return (
       <TodoProvider>

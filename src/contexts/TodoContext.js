@@ -47,13 +47,14 @@ const TodoContext = createContext({
       get visibleTodos() {
         const { todos, selectedFilter } = this.state;
         switch (selectedFilter) {
-          case "all":
-            return todos;
           case "active":
             return todos.filter(todo => !todo.isDone);
           case "completed":
             return todos.filter(todo => todo.isDone);
+          default: 
+            return todos;
         }
+
       }
     
       changeStateTodo = id => {
