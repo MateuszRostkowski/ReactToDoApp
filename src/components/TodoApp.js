@@ -86,10 +86,10 @@ const Controls = props => {
 };
 
 const TodoItem = props => {
-  const { allowEdit, isDone, label, id, onChangeStateTodo, onDeleteTodo, onTodoEdit } = props;
+  const { isDone, label, id, onChangeStateTodo, onDeleteTodo } = props;
 
   return (
-    <li className={`${isDone ? styles.completed : ""} ${allowEdit ? styles.editing: ""}`}>
+    <li className={isDone ? styles.completed : ""}>
       <div className={styles.view}>
         <input
           readOnly
@@ -100,12 +100,7 @@ const TodoItem = props => {
             onChangeStateTodo(id);
           }}
         />
-        <label onDoubleClick={() => {
-          onTodoEdit(id)
-        }}
-        >
-          {label}
-        </label>
+        <label>{label}</label>
         <button
           className={styles.destroy}
           onClick={() => {
@@ -113,17 +108,13 @@ const TodoItem = props => {
           }}
         ></button>
       </div>
-      <input
-        readOnly
-        className={styles.edit}
-        value={label}
-      />
+      <input readOnly className={styles.edit} value={label} />
     </li>
   );
 };
 
 const TodoList = props => {
-  const { onDeleteTodo, onChangeStateTodo, onTodoEdit } = props;
+  const { onDeleteTodo, onChangeStateTodo } = props;
 
   return (
     <ul className={styles.todoList}>
@@ -135,8 +126,6 @@ const TodoList = props => {
           id={todo.id}
           isDone={todo.isDone}
           label={todo.label}
-          allowEdit={todo.allowEdit}
-          onTodoEdit={onTodoEdit}
         />
       ))}
     </ul>
@@ -181,10 +170,8 @@ const ToggleAll = props => {
 class TodoApp extends React.Component {
   state = {
     todos,
-    displayTodos: JSON.parse(localStorage.getItem("todos")),
     selectedFilter: "all",
-    newTodoValue: "",
-    allowEdit: false
+    newTodoValue: ""
   };
 
   componentDidMount() {
@@ -193,8 +180,6 @@ class TodoApp extends React.Component {
       todos
     });
   }
-
-
 
   componentDidUpdate() {
     localStorage.setItem("todos", JSON.stringify(this.state.todos));
@@ -205,7 +190,7 @@ class TodoApp extends React.Component {
   }
 
   get isClearVisible() {
-    return this.state.todos.some(todo => todo.isDone === true);
+    return this.visibleTodos.some(todo => todo.isDone === true);
   }
 
   get activeTodos() {
@@ -216,28 +201,17 @@ class TodoApp extends React.Component {
     return this.state.todos.filter(todo => todo.isDone === true);
   }
 
-  get todosToDisplay() {
-    return this.state.todos;
-  }
-
-  displayTodos = filter => {
-    switch (filter) {
+  get visibleTodos() {
+    const { todos, selectedFilter } = this.state;
+    switch (selectedFilter) {
+      case "all":
+        return todos;
       case "active":
-        this.setState({
-          displayTodos: this.activeTodos
-        });
-        break;
+        return todos.filter(todo => !todo.isDone);
       case "completed":
-        this.setState({
-          displayTodos: this.completedTodos
-        });
-        break;
-      default:
-        this.setState({
-          displayTodos: this.state.todos
-        });
+        return todos.filter(todo => todo.isDone);
     }
-  };
+  }
 
   changeStateTodo = id => {
     const newTodos = [...this.state.todos];
@@ -245,23 +219,14 @@ class TodoApp extends React.Component {
     newTodo.isDone = newTodo.isDone ? false : true;
 
     this.setState({
-      todos: newTodos,
-      displayTodos: newTodos
-    },
-    () => {
-      this.displayTodos(this.state.selectedFilter);
+      todos: newTodos
     });
   };
 
   changeFilter = filter => {
-    this.setState(
-      {
-        selectedFilter: filter
-      },
-      () => {
-        this.displayTodos(this.state.selectedFilter);
-      }
-    );
+    this.setState({
+      selectedFilter: filter
+    });
   };
 
   toggleAllTodos = () => {
@@ -271,34 +236,10 @@ class TodoApp extends React.Component {
       isDone: change
     }));
 
-    this.setState(
-      {
-        todos: newTodos,
-        displayTodos: newTodos
-      },
-      () => {
-        this.displayTodos(this.state.selectedFilter);
-      }
-    );
-  };
-
-  todoEdit = id => {
-    const newTodos = this.state.todos.map(todo => ({
-      ...todo,
-      allowEdit: false
-    }));
-
-    const newTodo = newTodos.filter(todo => todo.id === id)[0];
-    newTodo.allowEdit = newTodo.allowEdit ? false : true;
-
     this.setState({
-      todos: newTodos,
-      displayTodos: newTodos
-    },
-    () => {
-      this.displayTodos(this.state.selectedFilter);
+      todos: newTodos
     });
-  }
+  };
 
   addTodo = () => {
     // [1, 2, 3] -> [4, 1, 2, 3]
@@ -309,50 +250,31 @@ class TodoApp extends React.Component {
     const newTodo = {
       id: uuid.v4(),
       isDone: false,
-      label: this.state.newTodoValue,
-      todoEdit: false
+      label: this.state.newTodoValue
     };
 
     const newTodos = [newTodo, ...this.state.todos];
 
-    this.setState(
-      {
-        todos: newTodos,
-        newTodoValue: "",
-        displayTodos: newTodos
-      },
-      () => {
-        this.displayTodos(this.state.selectedFilter);
-      }
-    );
+    this.setState({
+      todos: newTodos,
+      newTodoValue: ""
+    });
   };
 
   deleteTodo = id => {
     console.log(id);
     // [1, 2, 3, 4, 5] -> [1, 2, 4, 5]
     const newTodos = this.state.todos.filter(todo => todo.id !== id);
-    this.setState(
-      {
-        todos: newTodos,
-        displayTodos: newTodos
-      },
-      () => {
-        this.displayTodos(this.state.selectedFilter);
-      }
-    );
+    this.setState({
+      todos: newTodos
+    });
   };
 
   deleteCompleted = () => {
     const newTodos = this.state.todos.filter(todo => todo.isDone !== true);
-    this.setState(
-      {
-        todos: newTodos,
-        displayTodos: newTodos
-      },
-      () => {
-        this.displayTodos(this.state.selectedFilter);
-      }
-    );
+    this.setState({
+      todos: newTodos
+    });
   };
 
   handleChange = newValue => {
@@ -363,7 +285,6 @@ class TodoApp extends React.Component {
     this.setState({
       newTodoValue: newValue
     });
-    this.displayTodos(this.state.selectedFilter);
   };
 
   render() {
@@ -381,10 +302,9 @@ class TodoApp extends React.Component {
           <section className={styles.main}>
             <ToggleAll onToggleAllTodos={this.toggleAllTodos} />
             <TodoList
-              todos={this.state.displayTodos}
+              todos={this.visibleTodos}
               onDeleteTodo={this.deleteTodo}
               onChangeStateTodo={this.changeStateTodo}
-              onTodoEdit={this.todoEdit}
             />
           </section>
           <Controls
@@ -396,7 +316,6 @@ class TodoApp extends React.Component {
           />
         </section>
         <footer className={styles.info}>
-          <p>Double-click to edit a todo</p>
           <p>
             Template by <a href="http://sindresorhus.com">Sindre Sorhus</a>
           </p>
